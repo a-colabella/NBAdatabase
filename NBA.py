@@ -5,6 +5,11 @@
 import flask
 import mysql.connector
 import Tkinter as tk
+from Tkinter import *
+
+BACKGROUND_IMAGE = "basketball_clipart.jpg"
+WIDTH = 800
+HEIGHT = 800
 
 def select(connection, statement):
     cur = connection.cursor()
@@ -15,22 +20,31 @@ def select(connection, statement):
     return output
 
 def main(config):
-    # SQL Connection
-    cnx = mysql.connector.connect(**config)
+   	# SQL Connection
+    	cnx = mysql.connector.connect(**config)
 
-    # Main window
-    mainwin = tk.Tk()
-    mainwin.title("NBA Statistics")
+    	#Main window
+	root = Tk()
+	root.title('NBA Statistics')
+	w, h = WIDTH, HEIGHT
+	root.geometry("%dx%d+0+0" % (w, h))
 
-    # Background frame
-    back = tk.Frame(master=mainwin, width=800, height=800)
-    back.pack()
+	#Frame
+	topFrame = Frame(root)
+	topFrame.pack(side=TOP, fill=X)
+	middleFrame = Frame(root)
+	middleFrame.pack()
+	bottomFrame = Frame(root)
+	bottomFrame.pack(side=BOTTOM)
 
+	#main menu
+	menu_label = Label(topFrame, text="Main Menu")
+	menu_label.config(font=("Arial", 20))
+	menu_label.pack()
+	    
+    	root.mainloop()
 
-    
-    mainwin.mainloop()
-
-    return
+    	return
 
 
 if __name__ == '__main__':
