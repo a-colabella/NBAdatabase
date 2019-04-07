@@ -17,7 +17,39 @@ def select(connection, statement):
     output = cur.fetchall()
     cur.close()
 
-    return output
+    return output[0]
+
+def callProc(connection, procName, argsArray):
+    results = []
+    # Get cursor
+    cur = connection.cursor()
+
+    # Run the stored procedure
+    cur.callproc(procName, argsArray)
+
+    # Get the data output
+    for result in cur.stored_results():
+        results.append(result.fetchall())
+
+    cur.close()
+
+    return list(results[0])
+
+def runSearch(connection, table, option, content):
+    # Clear the table
+    table.delete(0, END)
+    
+    if option == "player":
+        player = select(connection, "select * from lotr_character where character_name = '" + content + "'")
+        table.insert(END, player)
+
+        
+    elif option == "teams":
+        teams = callProc(connection, "track_character", [content])
+        for team in teams:
+            table.insert(END, team)
+
+    return
 
 def main(config):
    	# SQL Connection
@@ -45,24 +77,28 @@ def main(config):
 	logo.pack()
 
         # Search Box
-        search_box = Entry(middleFrame, width=50, font=("Arial", 12))
-
-        # Radio buttons
         search_option = StringVar()
+        mytable = ""
+        
+        search_box = Entry(middleFrame, width=50, font=("Arial", 12))
+        search_button = Button(middleFrame, text="Search", command= lambda: runSearch(cnx, mytable, search_option.get(), search_box.get()))
+
+        # Radio buttons        
         search_player = Radiobutton(middleFrame, text="Player", value="player", var=search_option)
         search_teams = Radiobutton(middleFrame, text="Teams", value="teams", var=search_option)
         search_coaches = Radiobutton(middleFrame, text="Coaches", value="coaches", var=search_option)
         search_player.config(font=("Arial", 12))
         search_teams.config(font=("Arial", 12))
         search_coaches.config(font=("Arial", 12))
-        search_box.pack()
+        search_box.pack(side="left")
+        search_button.pack(side="left")
         search_player.pack(side="right", fill=NONE)
         search_teams.pack(side="right", fill=NONE)
         search_coaches.pack(side="right", fill=NONE)
 
         # List
         scrollbar = Scrollbar(bottomFrame, orient=VERTICAL)
-        mytable = Listbox(bottomFrame, yscrollcommand=scrollbar.set, width=200, height=30)
+        mytable = Listbox(bottomFrame, yscrollcommand=scrollbar.set, width=100, height=20, font=("Arial", 12))
         scrollbar.config(command=mytable.yview)
         scrollbar.pack(side=RIGHT, fill=Y)
         mytable.pack(side=TOP, fill=BOTH, expand=1)
