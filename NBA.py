@@ -5,26 +5,30 @@
 import flask
 import mysql.connector
 import Tkinter as tk
+import ttk as ttk
 from Tkinter import *
-
 from PIL import Image, ImageTk
+import tkFont
 
 NBA_LOGO = "nbalogo.png"
 
 def select(connection, statement):
     cur = connection.cursor()
+
+    # Execute select
     cur.execute(statement)
+
+    # Get output
     output = cur.fetchall()
     cur.close()
 
-    return output[0]
+    return output
 
 def callProc(connection, procName, argsArray):
     results = []
-    # Get cursor
     cur = connection.cursor()
 
-    # Run the stored procedure
+    # Run the procedure
     cur.callproc(procName, argsArray)
 
     # Get the data output
@@ -40,14 +44,54 @@ def runSearch(connection, table, option, content):
     table.delete(0, END)
     
     if option == "player":
-        player = select(connection, "select * from lotr_character where character_name = '" + content + "'")
-        table.insert(END, player)
+        if content:
+            players = callProc(connection, "track_player", [content])
+        else:
+            players = callProc(connection, "all_player", [])
+            
+        formatting = "{:<25}{:<10}{:<5}{:<6}{:<7}{:<5}{:<5}{:<5}{:<5}{:<5}{:<5}{:<5}{:<5}{:<6}"
 
+        heading = formatting.format("Player Name", "Position", "Age", "Team", "Games", "FG%", "3P%", "FT%", "Rbs", "Ast", "Stl", "Blk", "TO", "Pts")
+
+
+        table.insert(END, heading)
+        table.insert(END, "_"*100)
+
+        for player in players:
+            tmp = formatting.format(player[0], player[1], player[2], player[3], player[4], player[5], player[6], player[7], player[8], player[9], player[10], player[11], player[12], player[13])
+            table.insert(END, tmp)
         
+                
     elif option == "teams":
-        teams = callProc(connection, "track_character", [content])
+        if content:
+            teams = callProc(connection, "track_team", [content])
+        else:
+            teams = select(connection, "select * from teams")
+        
+        formatting = "{:<10}{:<30}{:<10}{:<10}"
+        
+        table.insert(END, formatting.format("Team Abr", "Team Name", "Division", "Conference"))
+
+        table.insert(END, "_"*100)
+        
         for team in teams:
-            table.insert(END, team)
+            tmp = formatting.format(team[0], team[1], team[2], team[3])
+            table.insert(END, tmp)
+            
+    else:
+        if content:
+            coaches = callProc(connection, "track_coach", [content])
+        else:
+            coaches = callProc(connection, "all_coach", [])
+        
+        formatting = "{:<30}{:<30}"
+
+        table.insert(END, formatting.format("Coach Name", "Team Name"))
+        table.insert(END, "_"*100)
+
+        for coach in coaches:
+            tmp = formatting.format(coach[0], coach[1])
+            table.insert(END, tmp)
 
     return
 
@@ -80,16 +124,16 @@ def main(config):
         search_option = StringVar()
         mytable = ""
         
-        search_box = Entry(middleFrame, width=50, font=("Arial", 12))
+        search_box = Entry(middleFrame, width=50, font=("Courier", 12))
         search_button = Button(middleFrame, text="Search", command= lambda: runSearch(cnx, mytable, search_option.get(), search_box.get()))
 
         # Radio buttons        
         search_player = Radiobutton(middleFrame, text="Player", value="player", var=search_option)
         search_teams = Radiobutton(middleFrame, text="Teams", value="teams", var=search_option)
         search_coaches = Radiobutton(middleFrame, text="Coaches", value="coaches", var=search_option)
-        search_player.config(font=("Arial", 12))
-        search_teams.config(font=("Arial", 12))
-        search_coaches.config(font=("Arial", 12))
+        search_player.config(font=("Courier", 12))
+        search_teams.config(font=("Courier", 12))
+        search_coaches.config(font=("Courier", 12))
         search_box.pack(side="left")
         search_button.pack(side="left")
         search_player.pack(side="right", fill=NONE)
@@ -98,7 +142,7 @@ def main(config):
 
         # List
         scrollbar = Scrollbar(bottomFrame, orient=VERTICAL)
-        mytable = Listbox(bottomFrame, yscrollcommand=scrollbar.set, width=100, height=20, font=("Arial", 12))
+        mytable = Listbox(bottomFrame, yscrollcommand=scrollbar.set, width=100, height=20, font=("Courier", 12))
         scrollbar.config(command=mytable.yview)
         scrollbar.pack(side=RIGHT, fill=Y)
         mytable.pack(side=TOP, fill=BOTH, expand=1)
@@ -114,7 +158,7 @@ if __name__ == '__main__':
     config = {
         'host' : 'localhost',
         'port' : 3306,
-        'database': 'lotrfinal',
+        'database': 'nba',
         'user': 'root',
         'password': 'root',
         'charset': 'utf8',
