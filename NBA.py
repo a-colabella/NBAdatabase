@@ -111,6 +111,39 @@ def runSearch(connection, table, option, content):
 
     return
 
+def runAllStars(connection, table):
+    # Clear the table
+    table.delete(0, END)
+
+    stars = callProc(connection, "get_allstars", [])
+
+    formatting = "{:<30}{:<30}"
+
+    table.insert(END, formatting.format("Player Name", "Team Name"))
+
+    table.insert(END, "_"*100)
+
+    for star in stars:
+        tmp = formatting.format(star[0], star[1])
+        table.insert(END, tmp)
+
+def runAwards(connection, table):
+    # Clear the table
+    table.delete(0, END)
+
+    stars = callProc(connection, "get_awards", [])
+
+    formatting = "{:<30}{:<30}"
+
+    table.insert(END, formatting.format("Award Name", "Player Name"))
+
+    table.insert(END, "_"*100)
+
+    for star in stars:
+        tmp = formatting.format(star[0], star[1])
+        table.insert(END, tmp)
+
+
 def main(config):
    	# SQL Connection
     	cnx = mysql.connector.connect(**config)
@@ -162,9 +195,14 @@ def main(config):
         # List
         scrollbar = Scrollbar(bottomFrame, orient=VERTICAL)
         mytable = Listbox(bottomFrame, yscrollcommand=scrollbar.set, width=100, height=20, font=("Courier", 12))
+        allstar_button = Button(bottomFrame, text="All Stars", command= lambda: runAllStars(cnx, mytable))
+        awards_button = Button(bottomFrame, text="Player Awards", command= lambda: runAwards(cnx, mytable))
         scrollbar.config(command=mytable.yview)
-        scrollbar.pack(side=RIGHT, fill=Y)
+        scrollbar.pack(side=RIGHT, fill=BOTH)
         mytable.pack(side=TOP, fill=BOTH, expand=1)
+        allstar_button.pack(side=LEFT)
+        awards_button.pack(side=LEFT)
+
         
 
         
