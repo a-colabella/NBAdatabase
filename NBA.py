@@ -77,6 +77,22 @@ def runSearch(connection, table, option, content):
         for team in teams:
             tmp = formatting.format(team[0], team[1], team[2], team[3])
             table.insert(END, tmp)
+
+    elif option == "games":
+        if content:
+            games = callProc(connection, "team_games", [content])
+        else:
+            games = select(connection, "select * from games")
+
+        formatting = "{:<5}{:<16}{:<25}{:<9}{:<25}{:<9}"
+        
+        table.insert(END, formatting.format("ID", "Date", "Home Team", "Home Pts", "Away Team", "Away Pts"))
+
+        table.insert(END, "_"*100)
+        
+        for game in games:
+            tmp = formatting.format(game[0], game[1], game[2], game[3], game[4], game[5])
+            table.insert(END, tmp)
             
     else:
         if content:
@@ -131,14 +147,17 @@ def main(config):
         search_player = Radiobutton(middleFrame, text="Player", value="player", var=search_option)
         search_teams = Radiobutton(middleFrame, text="Teams", value="teams", var=search_option)
         search_coaches = Radiobutton(middleFrame, text="Coaches", value="coaches", var=search_option)
+        search_games = Radiobutton(middleFrame, text="Games", value="games", var=search_option)
         search_player.config(font=("Courier", 12))
         search_teams.config(font=("Courier", 12))
         search_coaches.config(font=("Courier", 12))
+        search_games.config(font=("Courier", 12))
         search_box.pack(side="left")
         search_button.pack(side="left")
         search_player.pack(side="right", fill=NONE)
         search_teams.pack(side="right", fill=NONE)
         search_coaches.pack(side="right", fill=NONE)
+        search_games.pack(side="right", fill=NONE)
 
         # List
         scrollbar = Scrollbar(bottomFrame, orient=VERTICAL)
