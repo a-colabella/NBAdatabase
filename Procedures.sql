@@ -12,3 +12,18 @@ CREATE PROCEDURE all_coach()
 SELECT coach_name, team_name
 FROM coaches
 //
+
+DELIMITER //
+SELECT *
+FROM games;
+//
+
+DELIMITER //
+SELECT *
+FROM teams;
+//
+
+DELIMITER //
+SELECT *
+FROM players
+//
