@@ -159,8 +159,6 @@ def runAwards(connection, table):
 def runUpdate(connection, table, rt):
     update_window = tk.Toplevel(rt)
     update_window.title('Update Data')
-    w, h = (update_window.winfo_screenwidth() / 2), (update_window.winfo_screenheight() / 4)
-    update_window.geometry("%dx%d+0+0" % (w, h))
     
 
 def runAddGame(connection, table, rt):
@@ -183,9 +181,13 @@ def runAddTeam(connection, table, rt):
     add_window.title('Add Team')
 
     abr_label = Label(add_window, text="Team Abbreviation: ").grid(row=0,column=1)
+    abr_entry = Entry(add_window).grid(row=0,column=2)
     name_label = Label(add_window, text="Team Name: ").grid(row=1,column=1)
+    name_entry = Entry(add_window).grid(row=1,column=2)
     div_label = Label(add_window, text="Team Division: ").grid(row=2,column=1)
+    div_entry= Entry(add_window).grid(row=2,column=2)
     conf_label = Label(add_window, text="Team Conference: ").grid(row=3, column=1)
+    conf_entry=Entry(add_window).grid(row=3,column=2)
     submit_button = Button(add_window, text="Submit").grid(row=4, column=2)
     
 
@@ -204,23 +206,23 @@ def runAddPlayer(connection, table, rt):
     game_label = Label(add_window, text="Games: ").grid(row=4, column=1)
     game_entry = Spinbox(add_window, from_=0, to=100).grid(row=4,column=2)
     fg_label = Label(add_window, text="FG%: ").grid(row=5, column=1)
-    fg_entry = Spinbox(add_window, from_0, to=100).grid(row=5,column=2)
+    fg_entry = Spinbox(add_window, from_=0, to=100).grid(row=5,column=2)
     threeP_label = Label(add_window, text="3P%: ").grid(row=6, column=1)
-    threeP_entry = Spinbox(add_window, from_0, to=100).grid(row=6,column=2)
+    threeP_entry = Spinbox(add_window, from_=0, to=100).grid(row=6,column=2)
     ft_label = Label(add_window, text="FT%: ").grid(row=7, column=1)
-    ft_entry = Spinbox(add_window, from_0, to=100).grid(row=7,column=2)
+    ft_entry = Spinbox(add_window, from_=0, to=100).grid(row=7,column=2)
     rbs_label = Label(add_window, text="Rbs: ").grid(row=8, column=1)
-    rbs_entry = Spinbox(add_window, from_0, to=100).grid(row=8,column=2)
+    rbs_entry = Spinbox(add_window, from_=0, to=100).grid(row=8,column=2)
     ast_label = Label(add_window, text="Ast: ").grid(row=9, column=1)
-    ast_entry = Spinbox(add_window, from_0, to=100).grid(row=9,column=2)
+    ast_entry = Spinbox(add_window, from_=0, to=100).grid(row=9,column=2)
     stl_label = Label(add_window, text="Stl: ").grid(row=10, column=1)
-    stl_entry = Spinbox(add_window, from_0, to=100).grid(row=10,column=2)
+    stl_entry = Spinbox(add_window, from_=0, to=100).grid(row=10,column=2)
     blk_label = Label(add_window, text="Blk: ").grid(row=11, column=1)
-    blk_entry = Spinbox(add_window, from_0, to=100).grid(row=11,column=2)
+    blk_entry = Spinbox(add_window, from_=0, to=100).grid(row=11,column=2)
     TO_label = Label(add_window, text="TO: ").grid(row=12, column=1)
-    TO_entry = Spinbox(add_window, from_0, to=100).grid(row=12,column=2)
+    TO_entry = Spinbox(add_window, from_=0, to=100).grid(row=12,column=2)
     Pts_label = Label(add_window, text="Pts: ").grid(row=13, column=1)
-    Pts_entry = Spinbox(add_window, from_0, to=100).grid(row=13,column=2)
+    Pts_entry = Spinbox(add_window, from_=0, to=100).grid(row=13,column=2)
     
     submit_button = Button(add_window, text="Submit").grid(row=14, column=2)
 
