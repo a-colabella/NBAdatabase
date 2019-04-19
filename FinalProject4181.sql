@@ -571,7 +571,7 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `track_coach`(c CHAR(50))
-SELECT * 
+SELECT coach_name, team_name 
 FROM coaches
 WHERE c = coach_name ;;
 DELIMITER ;
