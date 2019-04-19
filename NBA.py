@@ -15,10 +15,13 @@ NBA_LOGO = "nbalogo.png"
 # A function to execute a select statement
 # in the database
 def select(connection, statement):
+    #cnx = mysql.connector.connect(**connection)
+
     cur = connection.cursor()
 
     # Execute select
     cur.execute(statement)
+
 
     # Get output
     output = cur.fetchall()
@@ -30,10 +33,12 @@ def select(connection, statement):
 # in the database
 def callProc(connection, procName, argsArray):
     results = []
+    #cnx = mysql.connector.connect(**connection)
     cur = connection.cursor()
 
     # Run the procedure
     cur.callproc(procName, argsArray)
+    connection.commit()
 
     # Get the data output
     for result in cur.stored_results():
@@ -96,7 +101,7 @@ def runSearch(connection, table, option, content):
 
         formatting = "{:<5}{:<16}{:<25}{:<9}{:<25}{:<9}"
         
-        table.insert(END, formatting.format("ID", "Date", "Home Team", "Home Pts", "Away Team", "Away Pts"))
+        table.insert(END, formatting.format("ID", "Date", "Away Team", "Away Pts", "Home Team", "Home Pts"))
 
         table.insert(END, "_"*100)
         
@@ -175,15 +180,16 @@ def runAddGame(connection, update, rt, entry):
     yearVar.set("2017")
 
     
-    home_pts_label = Label(add_window, text="Home Points: ", font=("Courier", 12)).grid(row=2, column=1)
-    home_pts = Spinbox(add_window, from_=0, to=999, textvariable=homePointsVar).grid(row=2, column=2)
     
-    away_pts_label = Label(add_window, text="Away Points: ", font=("Courier", 12)).grid(row=4, column=1)
-    away_pts = Spinbox(add_window, from_=0, to=999, textvariable=awayPointsVar).grid(row=4, column=2)
-    submit_button = Button(add_window, text="Submit", font=("Courier", 12)).grid(row=6, column=2)
+    submit_button = Button(add_window, text="Submit", font=("Courier", 12))
+    submit_button.grid(row=6, column=2)
 
     if update:
         add_window.title('Update Game')
+        home_pts_label = Label(add_window, text="Home Points: ", font=("Courier", 12)).grid(row=2, column=1)
+        home_pts = Spinbox(add_window, from_=0, to=999, textvariable=homePointsVar).grid(row=2, column=2)
+        away_pts_label = Label(add_window, text="Away Points: ", font=("Courier", 12)).grid(row=4, column=1)
+        away_pts = Spinbox(add_window, from_=0, to=999, textvariable=awayPointsVar).grid(row=4, column=2)
         id_label = Label(add_window, text="ID: ", font=("Courier", 12)).grid(row=5, column=1)
         id_val = Label(add_window, text=entry[0], font=("Courier", 12)).grid(row=5, column=2)
 
@@ -193,6 +199,9 @@ def runAddGame(connection, update, rt, entry):
             homePointsVar.set(entry[-5])
             
         awayPointsVar.set(entry[-1])
+
+        submit_button.configure(command=lambda: callProc(connection, 'update_game', [int(entry[0]), int(homePointsVar.get()), int(awayPointsVar.get())]))
+        
     else:
         add_window.title('Add Game')
         date_label = Label(add_window, text="Date: ", font=("Courier", 12)).grid(row=0, column=1)
@@ -204,6 +213,9 @@ def runAddGame(connection, update, rt, entry):
         home_text = Entry(add_window, textvariable=homeVar, font=("Courier", 12)).grid(row=1, column=2)
         away_label = Label(add_window, text="Away Team: ", font=("Courier", 12)).grid(row=3, column=1)
         away_text = Entry(add_window, textvariable=awayVar, font=("Courier", 12)).grid(row=3, column=2)
+
+        dateString = " ".join([dayVar.get(), monthVar.get(), dateVar.get(), yearVar.get()])
+        submit_button.configure(command=lambda: callProc(connection, 'insert_game', [dateString, awayVar.get(), homeVar.get()]))
     
 
 def runAddPlayer(connection, update, rt, entry):
@@ -237,10 +249,13 @@ def runAddPlayer(connection, update, rt, entry):
     age_entry = Spinbox(add_window,from_=1,to=100, textvariable=ageVar).grid(row=2,column=2)
     
     
-    submit_button = Button(add_window, text="Submit", font=("Courier", 12)).grid(row=18, column=2)
+    submit_button = Button(add_window, text="Submit", font=("Courier", 12))
+    submit_button.grid(row=18, column=2)
 
     if update:
         add_window.title('Update Player')
+
+        
         game_label = Label(add_window, text="Games: ", font=("Courier", 12)).grid(row=4, column=1)
         game_entry = Spinbox(add_window, from_=0, to=100, textvariable=gameVar).grid(row=4,column=2)
         fg_label = Label(add_window, text="FG: ", font=("Courier", 12)).grid(row=5, column=1)
@@ -295,8 +310,12 @@ def runAddPlayer(connection, update, rt, entry):
         TOVar.set(playerInfo[16])
         ptsVar.set(playerInfo[17])
 
+        submit_button.configure(command=lambda: callProc(connection, 'update_player', [int(playerInfo[18]), nameVar.get(), posVar.get(), int(ageVar.get()), int(gameVar.get()), int(fgVar.get()), int(fgAVar.get()), int(threePVar.get()), int(threePAVar.get()), int(ftVar.get()), int(ftAVar.get()), int(orbsVar.get()), int(drbsVar.get()), int(astVar.get()), int(stlVar.get()), int(blkVar.get()), int(TOVar.get()), int(ptsVar.get())]))
+
     else:
         add_window.title('Add Player')
+        submit_button.configure(command=lambda: callProc(connection, 'insert_player', [nameVar.get(), posVar.get(), int(ageVar.get()), teamVar.get()]))
+        
         team_label = Label(add_window, text="Team Abbreviation: ", font=("Courier", 12)).grid(row=3, column=1)
         team_entry = Entry(add_window, textvariable=teamVar, font=("Courier", 12)).grid(row=3,column=2)
 
@@ -403,7 +422,8 @@ def main(config):
         add_player_button.pack(side=LEFT)
         
     	root.mainloop()
-
+        
+        
     	return
 
 # database config
@@ -418,4 +438,5 @@ if __name__ == '__main__':
         'use_unicode': True,
         'get_warnings': True,
     }
+    
     main(config)
