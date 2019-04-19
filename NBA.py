@@ -13,6 +13,7 @@ from Tkinter import *
 import tkFont
 
 NBA_LOGO = "nbalogo.png"
+SQL_FILE = "FinalProject4181.sql"
 
 # A function to execute a select statement
 # in the database
@@ -474,15 +475,22 @@ if __name__ == '__main__':
         try:
             cnx = mysql.connector.connect(**config)
             connected = True
+            #cur = cnx.cursor()
+
+            #for line in open(SQL_FILE):
+            #    cur.execute(line)
+
+            #cnx.commit()
+            #cur.close()
+            
         except mysql.connector.Error as err:
             connected = False
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
                 print("Invalid username or password.")
-                
-            elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                print("The database does not exist!")
             else:
                 print(err)
+
+    
 
     # Run GUI
     main(cnx)
