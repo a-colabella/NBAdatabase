@@ -269,29 +269,32 @@ def runAddPlayer(connection, update, rt, entry):
         TO_entry = Spinbox(add_window, from_=0, to=10000, textvariable=TOVar).grid(row=16,column=2)
         Pts_label = Label(add_window, text="Pts: ", font=("Courier", 12)).grid(row=17, column=1)
         Pts_entry = Spinbox(add_window, from_=0, to=10000, textvariable=ptsVar).grid(row=17,column=2)
-p
+
         getName = " ".join(entry[:-13])
         getTeam = entry[-11]
+	
+	playerInfo = callProc(connection, 'player_update_info', [getName, getTeam])[0]        
+	
         
-        
-        nameVar.set()
-        posVar.set()
-        ageVar.set()
-        teamVar.set()
-        gameVar.set()
-        fgVar.set()
-        fgAVar.set()
-        threePVar.set()
-        threePAVar.set()
-        ftVar.set()
-        ftAVar.set()
-        orbsVar.set()
-        drbsVar.set()
-        astVar.set()
-        stlVar.set()
-        blkVar.set()
-        TOVar.set()
-        ptsVar.set()
+        nameVar.set(playerInfo[0])
+        posVar.set(playerInfo[1])
+        ageVar.set(playerInfo[2])
+        teamVar.set(playerInfo[3])
+        gameVar.set(playerInfo[4])
+        fgVar.set(playerInfo[5])
+        fgAVar.set(playerInfo[6])
+        threePVar.set(playerInfo[7])
+        threePAVar.set(playerInfo[8])
+        ftVar.set(playerInfo[9])
+        ftAVar.set(playerInfo[10])
+        orbsVar.set(playerInfo[11])
+        drbsVar.set(playerInfo[12])
+        astVar.set(playerInfo[13])
+        stlVar.set(playerInfo[14])
+        blkVar.set(playerInfo[15])
+        TOVar.set(playerInfo[16])
+        ptsVar.set(playerInfo[17])
+
     else:
         add_window.title('Add Player')
         team_label = Label(add_window, text="Team Abbreviation: ", font=("Courier", 12)).grid(row=3, column=1)
