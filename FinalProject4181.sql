@@ -435,7 +435,7 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `player_update_info`(user_player_name VARCHAR(100), user_team VARCHAR(100))
-SELECT player_name, pos, age, Tm, G as Games, FG, FGA, 3P, 3PA, FT, FTA, ORB, DRB, AST, STL, BLK,  TOV, PTS 
+SELECT player_name, pos, age, Tm, G as Games, FG, FGA, 3P, 3PA, FT, FTA, ORB, DRB, AST, STL, BLK,  TOV, PTS, player_id 
 FROM players
 WHERE player_name = user_player_name AND Tm = user_team ;;
 DELIMITER ;
@@ -649,8 +649,8 @@ DELIMITER ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `update_game`(user_game_id int, user_away_score int, user_home_score int)
 UPDATE games
-SET away_score = user_away_score,
-home_score = user_home_score
+SET away_points = user_away_score,
+home_points = user_home_score
 WHERE game_id = user_game_id ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
