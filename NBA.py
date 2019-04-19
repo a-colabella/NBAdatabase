@@ -2,12 +2,14 @@
 # Database Design
 # NBA Statistics Project
 
-#import flask
 import mysql.connector
+from mysql.connector import Error
+from mysql.connector import errorcode
+import getpass
+import PIL.Image
+import PIL.ImageTk
 import Tkinter as tk
-#import ttk as ttk
 from Tkinter import *
-from PIL import Image, ImageTk
 import tkFont
 
 NBA_LOGO = "nbalogo.png"
@@ -162,7 +164,7 @@ def runAwards(connection, table):
         table.insert(END, tmp)
 
     
-
+# Add or update a game
 def runAddGame(connection, update, rt, entry):
     add_window = tk.Toplevel(rt)
     
@@ -217,7 +219,7 @@ def runAddGame(connection, update, rt, entry):
         dateString = " ".join([dayVar.get(), monthVar.get(), dateVar.get(), yearVar.get()])
         submit_button.configure(command=lambda: [add_window.destroy(), callProc(connection, 'insert_game', [dateString, awayVar.get(), homeVar.get()])])
     
-
+# Add or update a player
 def runAddPlayer(connection, update, rt, entry):
     add_window = tk.Toplevel(rt)
     add_window.title('Add Player')
@@ -319,6 +321,7 @@ def runAddPlayer(connection, update, rt, entry):
         team_label = Label(add_window, text="Team Abbreviation: ", font=("Courier", 12)).grid(row=3, column=1)
         team_entry = Entry(add_window, textvariable=teamVar, font=("Courier", 12)).grid(row=3,column=2)
 
+# Add a coach
 def runAddCoach(connection, rt, entry):
     add_window = tk.Toplevel(rt)
     add_window.title('Add Coach')
@@ -335,6 +338,8 @@ def runAddCoach(connection, rt, entry):
 
     submit_button.config(command=lambda: [add_window.destroy(), callProc(connection, 'insert_coach', [nameVar.get(), teamVar.get()])])
 
+# General update function that will call specific
+# update functions
 def runUpdate(connection, entry, rt, datatype):
     entry = entry.split(" ")
     fixed_entry = filter(None, entry)
@@ -344,6 +349,8 @@ def runUpdate(connection, entry, rt, datatype):
     elif datatype == "player":
         runAddPlayer(connection, True, rt, fixed_entry)
 
+# General delete function that will delete
+# data from database
 def runDelete(connection, entry, rt, datatype):
     entry = entry.split(" ")
     fixed_entry = filter(None, entry)
@@ -362,92 +369,120 @@ def runDelete(connection, entry, rt, datatype):
         print(getName)
         print(getTeam)
         callProc(connection, 'delete_coach', [getName, getTeam])
-                    
-def main(config):
-   	# SQL Connection
-    	cnx = mysql.connector.connect(**config)
 
-    	#Main window
-	root = Tk()
-	root.title('NBA Statistics')
-        w, h = root.winfo_screenwidth(), root.winfo_screenheight()
-        root.geometry("%dx%d+0+0" % (w, h))
+# MAIN
+def main(connection):
+    # Connection
+    cnx = connection
 
-	#Frame
-	topFrame = Frame(root)
-	topFrame.pack(side=TOP, fill=X)
-	middleFrame = Frame(root)
-	middleFrame.pack()
-	bottomFrame = Frame(root)
-	bottomFrame.pack()
-
-	#main menu
-	load = Image.open(NBA_LOGO).resize((400, 200))
-        render = ImageTk.PhotoImage(load)
-        logo = Label(topFrame, image=render)
-        logo.image = render
-	logo.pack()
-
-        # Search Box
-        search_option = StringVar()
-        mytable = ""
-        
-        search_box = Entry(middleFrame, width=50, font=("Courier", 12))
-        search_button = Button(middleFrame, text="Search", font=("Courier", 12), command= lambda: runSearch(cnx, mytable, search_option.get(), search_box.get()))
-
-        # Radio buttons        
-        search_player = Radiobutton(middleFrame, text="Player", value="player", var=search_option)
-        search_teams = Radiobutton(middleFrame, text="Teams", value="teams", var=search_option)
-        search_coaches = Radiobutton(middleFrame, text="Coaches", value="coaches", var=search_option)
-        search_games = Radiobutton(middleFrame, text="Games", value="games", var=search_option)
-        search_player.config(font=("Courier", 12))
-        search_teams.config(font=("Courier", 12))
-        search_coaches.config(font=("Courier", 12))
-        search_games.config(font=("Courier", 12))
-        search_box.pack(side="left")
-        search_button.pack(side="left")
-        search_player.pack(side="right", fill=NONE)
-        search_teams.pack(side="right", fill=NONE)
-        search_coaches.pack(side="right", fill=NONE)
-        search_games.pack(side="right", fill=NONE)
-
-        # List
-        scrollbar = Scrollbar(bottomFrame, orient=VERTICAL)
-        mytable = Listbox(bottomFrame, yscrollcommand=scrollbar.set, width=100, height=20, font=("Courier", 12))
-        allstar_button = Button(bottomFrame, text="All Stars", font=("Courier", 12), command= lambda: runAllStars(cnx, mytable))
-        awards_button = Button(bottomFrame, text="Player Awards", font=("Courier", 12), command= lambda: runAwards(cnx, mytable))
-        update_data_button = Button(bottomFrame, text="Update Data", font=("Courier", 12), command = lambda: runUpdate(cnx, mytable.get(ACTIVE), root, search_option.get()), bg="orange")
-        add_game_button = Button(bottomFrame, text="Add Game", font=("Courier", 12), command = lambda:runAddGame(cnx, False, root, None), bg="green")
-        add_coach_button = Button(bottomFrame, text="Add Coach", font=("Courier", 12), command = lambda:runAddCoach(cnx, root, None), bg="green")
-        add_player_button = Button(bottomFrame, text="Add Player", font=("Courier", 12), command = lambda:runAddPlayer(cnx, False, root, None), bg="green")
-        delete_button = Button(bottomFrame, text="Delete Data", font=("Courier", 12), command = lambda:runDelete(cnx, mytable.get(ACTIVE), root, search_option.get()), bg="tomato")
-        scrollbar.config(command=mytable.yview)
-        scrollbar.pack(side=RIGHT, fill=BOTH)
-        mytable.pack(side=TOP, fill=BOTH, expand=1)
-        allstar_button.pack(side=LEFT)
-        awards_button.pack(side=LEFT)
-        update_data_button.pack(side=LEFT)
-        add_game_button.pack(side=LEFT)
-        add_coach_button.pack(side=LEFT)
-        add_player_button.pack(side=LEFT)
-        delete_button.pack(side=LEFT)
-        
-    	root.mainloop()
-        
-        
-    	return
+    #Main window
+    root = Tk()
+    root.title('NBA Statistics')
+    w, h = root.winfo_screenwidth(), root.winfo_screenheight()
+    root.geometry("%dx%d+0+0" % (w, h))
+    
+    #Frame
+    topFrame = Frame(root)
+    topFrame.pack(side=TOP, fill=X)
+    middleFrame = Frame(root)
+    middleFrame.pack()
+    bottomFrame = Frame(root)
+    bottomFrame.pack()
+    
+    #main menu
+    load = PIL.Image.open(NBA_LOGO).resize((400, 200))
+    render = PIL.ImageTk.PhotoImage(load)
+    logo = Label(topFrame, image=render)
+    logo.image = render
+    logo.pack()
+    
+    # Search Box
+    search_option = StringVar()
+    mytable = ""
+    
+    search_box = Entry(middleFrame, width=50, font=("Courier", 12))
+    search_button = Button(middleFrame, text="Search", font=("Courier", 12), command= lambda: runSearch(cnx, mytable, search_option.get(), search_box.get()))
+    
+    # Radio buttons        
+    search_player = Radiobutton(middleFrame, text="Player", value="player", var=search_option)
+    search_teams = Radiobutton(middleFrame, text="Teams", value="teams", var=search_option)
+    search_coaches = Radiobutton(middleFrame, text="Coaches", value="coaches", var=search_option)
+    search_games = Radiobutton(middleFrame, text="Games", value="games", var=search_option)
+    
+    # Radio button configurations and packing
+    search_player.config(font=("Courier", 12))
+    search_teams.config(font=("Courier", 12))
+    search_coaches.config(font=("Courier", 12))
+    search_games.config(font=("Courier", 12))
+    search_box.pack(side="left")
+    search_button.pack(side="left")
+    search_player.pack(side="right", fill=NONE)
+    search_teams.pack(side="right", fill=NONE)
+    search_coaches.pack(side="right", fill=NONE)
+    search_games.pack(side="right", fill=NONE)
+    
+    # List
+    scrollbar = Scrollbar(bottomFrame, orient=VERTICAL)
+    mytable = Listbox(bottomFrame, yscrollcommand=scrollbar.set, width=100, height=20, font=("Courier", 12))
+    allstar_button = Button(bottomFrame, text="All Stars", font=("Courier", 12), command= lambda: runAllStars(cnx, mytable))
+    awards_button = Button(bottomFrame, text="Player Awards", font=("Courier", 12), command= lambda: runAwards(cnx, mytable))
+    update_data_button = Button(bottomFrame, text="Update Data", font=("Courier", 12), command = lambda: runUpdate(cnx, mytable.get(ACTIVE), root, search_option.get()), bg="orange")
+    add_game_button = Button(bottomFrame, text="Add Game", font=("Courier", 12), command = lambda:runAddGame(cnx, False, root, None), bg="green")
+    add_coach_button = Button(bottomFrame, text="Add Coach", font=("Courier", 12), command = lambda:runAddCoach(cnx, root, None), bg="green")
+    add_player_button = Button(bottomFrame, text="Add Player", font=("Courier", 12), command = lambda:runAddPlayer(cnx, False, root, None), bg="green")
+    delete_button = Button(bottomFrame, text="Delete Data", font=("Courier", 12), command = lambda:runDelete(cnx, mytable.get(ACTIVE), root, search_option.get()), bg="tomato")
+    
+    # Configurations and packing
+    scrollbar.config(command=mytable.yview)
+    scrollbar.pack(side=RIGHT, fill=BOTH)
+    mytable.pack(side=TOP, fill=BOTH, expand=1)
+    allstar_button.pack(side=LEFT)
+    awards_button.pack(side=LEFT)
+    update_data_button.pack(side=LEFT)
+    add_game_button.pack(side=LEFT)
+    add_coach_button.pack(side=LEFT)
+    add_player_button.pack(side=LEFT)
+    delete_button.pack(side=LEFT)
+    
+    root.mainloop()
+    
+    
+    return
 
 # database config
 if __name__ == '__main__':
+    # Before main runs, we must prompt the user for username and password
     config = {
         'host' : 'localhost',
         'port' : 3306,
         'database': 'nba',
-        'user': 'root',
-        'password': 'root',
+        'user': '',
+        'password': '',
         'charset': 'utf8',
         'use_unicode': True,
         'get_warnings': True,
     }
-    
-    main(config)
+
+    # SQL Connection
+    connected = False
+    while (not connected):
+        myuser = raw_input("Please enter your MYSQL username: ")
+        mypass = getpass.getpass("Please enter your MYSQL password: ")
+        config['user'] = myuser
+        config['password'] = mypass
+        
+        try:
+            cnx = mysql.connector.connect(**config)
+            connected = True
+        except mysql.connector.Error as err:
+            connected = False
+            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                print("Invalid username or password.")
+                
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                print("The database does not exist!")
+            else:
+                print(err)
+
+    # Run GUI
+    main(cnx)
