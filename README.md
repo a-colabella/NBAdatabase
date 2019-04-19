@@ -22,7 +22,7 @@ Our program runs on Python 2
 These are the following Python libraries our program uses:
 * Tkinter
 * Pillow
-* mysql-connector
+* mysql-connector-python
 * tkFont
 * getpass (should be built into Python)
 
