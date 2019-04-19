@@ -200,7 +200,7 @@ def runAddGame(connection, update, rt, entry):
             
         awayPointsVar.set(entry[-1])
 
-        submit_button.configure(command=lambda: callProc(connection, 'update_game', [int(entry[0]), int(homePointsVar.get()), int(awayPointsVar.get())]))
+        submit_button.configure(command=lambda: [add_window.destroy(), callProc(connection, 'update_game', [int(entry[0]), int(homePointsVar.get()), int(awayPointsVar.get())])])
         
     else:
         add_window.title('Add Game')
@@ -215,7 +215,7 @@ def runAddGame(connection, update, rt, entry):
         away_text = Entry(add_window, textvariable=awayVar, font=("Courier", 12)).grid(row=3, column=2)
 
         dateString = " ".join([dayVar.get(), monthVar.get(), dateVar.get(), yearVar.get()])
-        submit_button.configure(command=lambda: callProc(connection, 'insert_game', [dateString, awayVar.get(), homeVar.get()]))
+        submit_button.configure(command=lambda: [add_window.destroy(), callProc(connection, 'insert_game', [dateString, awayVar.get(), homeVar.get()])])
     
 
 def runAddPlayer(connection, update, rt, entry):
@@ -310,11 +310,11 @@ def runAddPlayer(connection, update, rt, entry):
         TOVar.set(playerInfo[16])
         ptsVar.set(playerInfo[17])
 
-        submit_button.configure(command=lambda: callProc(connection, 'update_player', [int(playerInfo[18]), nameVar.get(), posVar.get(), int(ageVar.get()), int(gameVar.get()), int(fgVar.get()), int(fgAVar.get()), int(threePVar.get()), int(threePAVar.get()), int(ftVar.get()), int(ftAVar.get()), int(orbsVar.get()), int(drbsVar.get()), int(astVar.get()), int(stlVar.get()), int(blkVar.get()), int(TOVar.get()), int(ptsVar.get())]))
+        submit_button.configure(command=lambda: [add_window.destroy(), callProc(connection, 'update_player', [int(playerInfo[18]), nameVar.get(), posVar.get(), int(ageVar.get()), int(gameVar.get()), int(fgVar.get()), int(fgAVar.get()), int(threePVar.get()), int(threePAVar.get()), int(ftVar.get()), int(ftAVar.get()), int(orbsVar.get()), int(drbsVar.get()), int(astVar.get()), int(stlVar.get()), int(blkVar.get()), int(TOVar.get()), int(ptsVar.get())])])
 
     else:
         add_window.title('Add Player')
-        submit_button.configure(command=lambda: callProc(connection, 'insert_player', [nameVar.get(), posVar.get(), int(ageVar.get()), teamVar.get()]))
+        submit_button.configure(command=lambda: [add_window.destroy(), callProc(connection, 'insert_player', [nameVar.get(), posVar.get(), int(ageVar.get()), teamVar.get()])])
         
         team_label = Label(add_window, text="Team Abbreviation: ", font=("Courier", 12)).grid(row=3, column=1)
         team_entry = Entry(add_window, textvariable=teamVar, font=("Courier", 12)).grid(row=3,column=2)
@@ -333,7 +333,7 @@ def runAddCoach(connection, rt, entry):
     submit_button = Button(add_window, text="Submit", font=("Courier", 12))
     submit_button.grid(row=3, column=2)
 
-    submit_button.config(command=lambda: callProc(connection, 'insert_coach', [nameVar.get(), teamVar.get()]))
+    submit_button.config(command=lambda: [add_window.destroy(), callProc(connection, 'insert_coach', [nameVar.get(), teamVar.get()])])
 
 def runUpdate(connection, entry, rt, datatype):
     entry = entry.split(" ")
@@ -420,7 +420,7 @@ def main(config):
         add_game_button = Button(bottomFrame, text="Add Game", font=("Courier", 12), command = lambda:runAddGame(cnx, False, root, None), bg="green")
         add_coach_button = Button(bottomFrame, text="Add Coach", font=("Courier", 12), command = lambda:runAddCoach(cnx, root, None), bg="green")
         add_player_button = Button(bottomFrame, text="Add Player", font=("Courier", 12), command = lambda:runAddPlayer(cnx, False, root, None), bg="green")
-        delete_button = Button(bottomFrame, text="Delete Data", font=("Courier", 12), command = lambda:runDelete(cnx, mytable.get(ACTIVE), root, search_option.get()), bg="maroon")
+        delete_button = Button(bottomFrame, text="Delete Data", font=("Courier", 12), command = lambda:runDelete(cnx, mytable.get(ACTIVE), root, search_option.get()), bg="tomato")
         scrollbar.config(command=mytable.yview)
         scrollbar.pack(side=RIGHT, fill=BOTH)
         mytable.pack(side=TOP, fill=BOTH, expand=1)
