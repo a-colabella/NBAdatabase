@@ -61,9 +61,9 @@ def runSearch(connection, table, option, content):
         else:
             players = callProc(connection, "all_player", [])
             
-        formatting = "{:<25}{:<10}{:<5}{:<6}{:<7}{:<5}{:<5}{:<5}{:<5}{:<5}{:<5}{:<5}{:<5}{:<6}"
+        formatting = "{:<25}{:<4}{:<4}{:<5}{:<6}{:<6}{:<6}{:<6}{:<6}{:<6}{:<6}{:<6}{:<6}{:<6}"
 
-        heading = formatting.format("Player Name", "Position", "Age", "Team", "Games", "FG%", "3P%", "FT%", "Rbs", "Ast", "Stl", "Blk", "TO", "Pts")
+        heading = formatting.format("Player Name", "Pos", "Age", "Team", "Games", "FG%", "3P%", "FT%", "Rbs", "Ast", "Stl", "Blk", "TO", "Pts")
 
 
         table.insert(END, heading)
@@ -319,9 +319,10 @@ def runAddPlayer(connection, update, rt, entry):
         team_label = Label(add_window, text="Team Abbreviation: ", font=("Courier", 12)).grid(row=3, column=1)
         team_entry = Entry(add_window, textvariable=teamVar, font=("Courier", 12)).grid(row=3,column=2)
 
-def runAddCoach(connection, update, rt, entry):
+def runAddCoach(connection, rt, entry):
     add_window = tk.Toplevel(rt)
-
+    add_window.title('Add Coach')
+    
     nameVar = StringVar()
     teamVar = StringVar()
     
@@ -329,17 +330,10 @@ def runAddCoach(connection, update, rt, entry):
     name_entry = Entry(add_window, textvariable=nameVar, font=("Courier", 12)).grid(row=0, column=2)
     team_label = Label(add_window, text="Team Abbreviation: ", font=("Courier", 12)).grid(row=1, column=1)
     team_entry = Entry(add_window, textvariable=teamVar, font=("Courier", 12)).grid(row=1, column=2)
-    submit_button = Button(add_window, text="Submit", font=("Courier", 12)).grid(row=3, column=2)
-    
-    if update:
-        add_window.title('Update Coach')
-        id_label = Label(add_window, text="ID: ", font=("Courier", 12)).grid(row=2, column=1)
-        id_val = Label(add_window, text="insert", font=("Courier", 12)).grid(row=2, column=2)
-        nameVar.set(" ".join(entry[:-1]))
-        teamVar.set(entry[-1])
-    else:
-        add_window.title('Add Coach')
-    
+    submit_button = Button(add_window, text="Submit", font=("Courier", 12))
+    submit_button.grid(row=3, column=2)
+
+    submit_button.config(command=lambda: callProc(connection, 'insert_coach', [nameVar.get(), teamVar.get()]))
 
 def runUpdate(connection, entry, rt, datatype):
     entry = entry.split(" ")
@@ -353,6 +347,21 @@ def runUpdate(connection, entry, rt, datatype):
 def runDelete(connection, entry, rt, datatype):
     entry = entry.split(" ")
     fixed_entry = filter(None, entry)
+
+    if datatype == "games":
+        callProc(connection, 'delete_game', [fixed_entry[0]])
+    elif datatype == "player":
+        getName = " ".join(fixed_entry[:-13])
+        getTeam = fixed_entry[-11]
+        print(getName)
+        print(getTeam)
+        callProc(connection, 'delete_player', [getName, getTeam])
+    elif datatype == "coaches":
+        getName = " ".join(fixed_entry[:-1])
+        getTeam = fixed_entry[-1]
+        print(getName)
+        print(getTeam)
+        callProc(connection, 'delete_coach', [getName, getTeam])
                     
 def main(config):
    	# SQL Connection
@@ -409,8 +418,9 @@ def main(config):
         awards_button = Button(bottomFrame, text="Player Awards", font=("Courier", 12), command= lambda: runAwards(cnx, mytable))
         update_data_button = Button(bottomFrame, text="Update Data", font=("Courier", 12), command = lambda: runUpdate(cnx, mytable.get(ACTIVE), root, search_option.get()), bg="orange")
         add_game_button = Button(bottomFrame, text="Add Game", font=("Courier", 12), command = lambda:runAddGame(cnx, False, root, None), bg="green")
-        add_coach_button = Button(bottomFrame, text="Add Coach", font=("Courier", 12), command = lambda:runAddCoach(cnx, False, root, None), bg="green")
+        add_coach_button = Button(bottomFrame, text="Add Coach", font=("Courier", 12), command = lambda:runAddCoach(cnx, root, None), bg="green")
         add_player_button = Button(bottomFrame, text="Add Player", font=("Courier", 12), command = lambda:runAddPlayer(cnx, False, root, None), bg="green")
+        delete_button = Button(bottomFrame, text="Delete Data", font=("Courier", 12), command = lambda:runDelete(cnx, mytable.get(ACTIVE), root, search_option.get()), bg="maroon")
         scrollbar.config(command=mytable.yview)
         scrollbar.pack(side=RIGHT, fill=BOTH)
         mytable.pack(side=TOP, fill=BOTH, expand=1)
@@ -420,6 +430,7 @@ def main(config):
         add_game_button.pack(side=LEFT)
         add_coach_button.pack(side=LEFT)
         add_player_button.pack(side=LEFT)
+        delete_button.pack(side=LEFT)
         
     	root.mainloop()
         
